@@ -1,13 +1,13 @@
 
 const { prompt } = require('inquirer');
-const mysql = require('mysql2/promise');
-const connection = require('./db');
+
+const { query } = require('./db');
 
 init();
 
-function init() {
-    loadMainPrompts();
-};
+async function init() {
+    await loadMainPrompts();
+}
 
 async function loadMainPrompts() {
     try {
@@ -54,25 +54,25 @@ async function loadMainPrompts() {
         let choice = res.choice;
         switch (choice) {
             case 'VIEW_DEPARTMENTS':
-                viewDepartments();
+                await viewDepartments();
                 break;
             case 'VIEW_ROLES':
-                viewRoles();
+                await viewRoles();
                 break;
             case 'VIEW_EMPLOYEES':
-                viewEmployees();
+                await viewEmployees();
                 break;
             case 'ADD_DEPARTMENT':
-                addDepartment();
+                await addDepartment();
                 break;
             case 'ADD_ROLE':
-                addRole();
+                await addRole();
                 break;
             case 'ADD_EMPLOYEE':
-                addEmployee();
+                await addEmployee();
                 break;
             case 'UPDATE_EMPLOYEE_ROLE':
-                updateEmployeeRole();
+                await updateEmployeeRole();
                 break;
         }
     } catch (error) {
@@ -83,15 +83,15 @@ async function loadMainPrompts() {
 
 async function viewDepartments() {
     // try {
-    //     const [rows, fields] = await connection.query('SELECT * FROM department');
-    console.log('Viewing All Departments');
+    //     const rows = await query('SELECT * FROM department');
+    //     console.log('Viewing All Departments');
     //     console.table(rows);
     // } catch (error) {
     //     console.error('Error fetching departments:', error);
     // } finally {
-    loadMainPrompts();
-    // }
-}
+        loadMainPrompts();
+    }
+// }
 
 function viewRoles() {
     console.log('Viewing All Roles');

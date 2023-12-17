@@ -1,8 +1,8 @@
 // Import mysql 
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise');
 
 // Create a connection to MYSQL database
-const connection = mysql.createConnection(
+const connection = await mysql.createConnection(
     {
         host: '127.0.0.1',
         user: 'root',
@@ -10,9 +10,13 @@ const connection = mysql.createConnection(
         database: 'employee_manager_db'
     });
 
-connection.connect((err) => {
-    if (err) throw err;
-    console.log(`Connected to the employee_manager_db database.`);
-});
+const query = async (sql, values) => {
+    try {
+        const [rows] = await connection.execute(sql, values);
+        return rows;
+    } catch (error) {
+        throw error;
+    }
+};
 
-module.exports = connection;
+module.exports = { connection, query };
