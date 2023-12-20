@@ -146,44 +146,51 @@ function addDepartment() {
 async function addRole() {
     console.log('Adding a Role');
 
-    const [departments] = await connection.promise().query('SELECT * FROM department');
+    try {
+        const [departments] = await connection.promise().query('SELECT * FROM department');
 
-    const departmentChoices = departments.map((department) => ({
-        name: department.department_name,
-        value: department.department_id,
-    }));
+        const departmentChoices = departments.map((department) => ({
+            name: department.department_name,
+            value: department.department_id,
+        }));
 
-    prompt([
-        {
-            type: 'input',
-            name: 'title',
-            message: 'Enter the name of the new role:',
-        },
-        {
-            type: 'input',
-            name: 'salary',
-            message: 'Enter the salary for the role:',
-        },
-        {
-            type: 'list',
-            name: 'department_id',
-            message: 'Enter the department for the new role:',
-            choices: departmentChoices,
-        },
-    ])
-        .then(async (answers) => {
-            try {
-                const [rows, fields] = await connection.promise().query(
-                    'INSERT INTO role (title, salary, department_name) VALUES(?, ?, ?, ?)',
-                    [answers.title, answers.salary, answers.department_name, answers.department_id]
-                );
-                console.log('Role added successfully!');
-                loadMainPrompts();
-            } catch (error) {
-                console.error('Error adding role:', error);
-                loadMainPrompts();
-            }
-        });
+
+        const answers = await prompt([
+            {
+                type: 'input',
+                name: 'title',
+                message: 'Enter the name of the new role:',
+            },
+            {
+                type: 'input',
+                name: 'salary',
+                message: 'Enter the salary for the role:',
+            },
+            {
+                type: 'list',
+                name: 'department_id',
+                message: 'Enter the department for the new role:',
+                choices: departmentChoices,
+            },
+        ]);
+
+        if (!answers.department_id) {
+            console.error('Error: Department ID cannot be null');
+            loadMainPrompts();
+            return;
+        }
+
+        const [rows, fields] = await connection.promise().query(
+            'INSERT INTO role (title, salary, department_id) VALUES(?, ?, ?)',
+            [answers.title, answers.salary, answers.department_id]
+        );
+
+        console.log('Role added successfully!');
+        loadMainPrompts();
+    } catch (error) {
+        console.error('Error adding role:', error);
+        loadMainPrompts();
+    }
 }
 
 function addEmployee() {
@@ -200,27 +207,126 @@ function addEmployee() {
             name: 'last_name',
             message: 'Enter the last name of the new employee',
         },
+        {
+            type: 'input',
+            name: 'role_id',
+            message: 'Enter the role ID of the new employee',
+        },
+        {
+            type: 'input',
+            name: 'manager_id',
+            message: 'Enter the manager ID of the new employee',
+        },
+
+
     ])
         .then(async (answers) => {
             try {
                 const [rows, fields] = await connection.promise().query(
-                    'INSERT INTO department (department_name) VALUES(?)',
-                    [answers.department_name]
+                    'INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES(?, ?, ?, ?)',
+                    [answers.first_name, answers.last_name, answers.role_id, answers.manager_id]
                 );
-                console.log('Department added successfully!');
+                console.log('Employee added successfully!');
                 loadMainPrompts();
             } catch (error) {
-                console.error('Error adding department:', error);
+                console.error('Error adding employee:', error);
                 loadMainPrompts();
             }
         });
 }
-function addEmployee() {
-    console.log('Adding an Employee');
-    loadMainPrompts();
-};
 
 function updateEmployeeRole() {
     console.log('Updating an Employee Role');
-    loadMainPrompts();
-};
+
+    prompt([
+        {
+            type: 'input',
+            name: 'first_name',
+            message: 'Enter the first name of the employee you would like to update:',
+        },
+        {
+            type: 'input',
+            name: 'last_name',
+            message: 'Enter the last name of the employee you would like to update:',
+        },
+        {
+            type: 'list',
+            name: 'choice',
+            message: 'What would you like to update?',
+            choices: [
+                {
+                    name: 'Update Title',
+                    value: 'UPDATE_TITLE'
+                },
+                {
+                    name: 'Update Salary',
+                    value: 'UPDATE_SALARY'
+                },
+                {
+                    name: 'Update Department ID',
+                    value: 'UPDATE_DEPARTMENT_ID'
+                },
+            ],
+        },
+    ])
+        .then(async (answers) => {
+            const employeeData = {
+                first_name: answers.first_name,
+                last_name: answers.last_name,
+            };
+
+            switch (answers.choice) {
+                case 'UPDATE_TITLE':
+                    updateEmployeeRoleByData(employeeData, 'title');
+                    break;
+                case 'UPDATE_SALARY':
+                    updateEmployeeRoleByData(employeeData, 'salary');
+                    break;
+                case 'UPDATE_DEPARTMENT_ID':
+                    updateEmployeeRoleByData(employeeData, 'department_id');
+                    break;
+                default:
+                    console.log('Invalid option');
+                    loadMainPrompts();
+            }
+        });
+}
+
+function updateEmployeeRoleByData(employeeData, update_type) {
+    let updateField, message;
+    switch (update_type) {
+        case 'title':
+            updateField = 'title';
+            message = 'Enter the new title:';
+            break;
+        case 'salary':
+            updateField = 'salary';
+            message = 'Enter the new salary:';
+            break;
+        case 'department_id':
+            updateField = 'department_id';
+            message = 'Enter the new department ID:';
+            break;
+    }
+
+    prompt([
+        {
+            type: 'input',
+            name: 'new_value',
+            message: message,
+        },
+    ])
+        .then(async (answer) => {
+            try {
+                const [rows, fields] = await connection.promise().query(
+                    `UPDATE employee SET ${updateField} = ? WHERE first_name = ? AND last_name = ?`,
+                    [answers.new_value, employeeData.first_name, employeeData.last_name]
+                );
+                console.log('Employee updated successfully!');
+                loadMainPrompts();
+            } catch (error) {
+                console.error('Error updating employee:', error);
+                loadMainPrompts();
+            }
+        });
+}
