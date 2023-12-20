@@ -25,12 +25,14 @@ To use this application, the user will navigate through prompts to view departme
 To get involved, reference the [Contributing Guide](https://docs.github.com/en/get-started/quickstart/contributing-to-projects) to contribute to this project. 
 
 ## Deployment
-[Initial Employee Tracker Video.webm](https://github.com/tugwellchristi/Employee-Tracker-v2/assets/90078824/c4b172ff-2726-4ae0-ad0b-9a5e32fdba3d)
+Employee Tracker Video Demo
+- [EmployeeTracker](https://github.com/tugwellchristi/Employee-Tracker-v2/assets/90078824/4644e721-16a0-4657-baa5-9abf9809d202)
+
 
 
 ## Questions
 For questions and support, contact:
-- GitHub username: tugwellchristi
+- GitHub username: [tugwellchristi](https://github.com/tugwellchristi)
 - Email me: tugwellchristi@gmail.com
 
 ## License 
